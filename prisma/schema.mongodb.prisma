@@ -1,14 +1,16 @@
 generator client {
   provider = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider     = "mongodb"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
-  id             String    @id @default(cuid())
+  id             String    @id @default(cuid()) @map("_id")
   email          String?   @unique
   phone          String?   @unique
   name           String
@@ -24,9 +26,9 @@ model User {
 }
 
 model PasswordReset {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   tokenHash String   @unique
   expiresAt DateTime
   usedAt    DateTime?
@@ -34,7 +36,7 @@ model PasswordReset {
 }
 
 model Business {
-  id                String   @id @default(cuid())
+  id                String   @id @default(cuid()) @map("_id")
   name              String
   logoUrl           String?
   address           String?
@@ -81,9 +83,9 @@ model Business {
 }
 
 model Branch {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   businessId  String
-  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String
   address     String?
   phone       String?
@@ -102,13 +104,13 @@ model Branch {
 }
 
 model Membership {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   branchId   String?
-  branch     Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  branch     Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   role       String
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
@@ -118,9 +120,9 @@ model Membership {
 }
 
 model TaxRate {
-  id         String    @id @default(cuid())
+  id         String    @id @default(cuid()) @map("_id")
   businessId String
-  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name       String
   cgstBps    Int       @default(0)
   sgstBps    Int       @default(0)
@@ -132,11 +134,11 @@ model TaxRate {
 }
 
 model Category {
-  id         String     @id @default(cuid())
+  id         String     @id @default(cuid()) @map("_id")
   businessId String
-  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   parentId   String?
-  parent     Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  parent     Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   children   Category[] @relation("CategoryTree")
   name       String
   kind       String     @default("PRODUCT")
@@ -145,17 +147,17 @@ model Category {
 }
 
 model Product {
-  id              String   @id @default(cuid())
+  id              String   @id @default(cuid()) @map("_id")
   businessId      String
-  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   branchId        String?
-  branch          Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  branch          Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   categoryId      String?
-  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  category        Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   taxRateId       String?
-  taxRate         TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull)
+  taxRate         TaxRate? @relation(fields: [taxRateId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   supplierId      String?
-  supplier        Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplier        Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   name            String
   description     String?
   sku             String?
@@ -193,17 +195,17 @@ model Product {
 }
 
 model ProductImage {
-  id        String  @id @default(cuid())
+  id        String  @id @default(cuid()) @map("_id")
   productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   url       String
   sortOrder Int     @default(0)
 }
 
 model ProductVariant {
-  id            String  @id @default(cuid())
+  id            String  @id @default(cuid()) @map("_id")
   productId     String
-  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name          String
   sku           String?
   barcode       String?
@@ -214,20 +216,20 @@ model ProductVariant {
 }
 
 model RecipeIngredient {
-  id            String  @id @default(cuid())
+  id            String  @id @default(cuid()) @map("_id")
   productId     String
-  product       Product @relation("RecipeProduct", fields: [productId], references: [id], onDelete: Cascade)
+  product       Product @relation("RecipeProduct", fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   ingredientId  String
-  ingredient    Product @relation("IngredientProduct", fields: [ingredientId], references: [id], onDelete: Cascade)
+  ingredient    Product @relation("IngredientProduct", fields: [ingredientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   qty           Float
 }
 
 model InventoryBalance {
-  id         String  @id @default(cuid())
+  id         String  @id @default(cuid()) @map("_id")
   branchId   String
-  branch     Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch     Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   productId  String
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   qty        Float   @default(0)
   updatedAt  DateTime @updatedAt
 
@@ -235,11 +237,11 @@ model InventoryBalance {
 }
 
 model StockMovement {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   branchId   String
-  branch     Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch     Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   qtyDelta   Float
   reason     String
   refType    String?
@@ -252,9 +254,9 @@ model StockMovement {
 }
 
 model Supplier {
-  id           String     @id @default(cuid())
+  id           String     @id @default(cuid()) @map("_id")
   businessId   String
-  business     Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business     Business   @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name         String
   phone        String?
   email        String?
@@ -267,11 +269,11 @@ model Supplier {
 }
 
 model Purchase {
-  id            String         @id @default(cuid())
+  id            String         @id @default(cuid()) @map("_id")
   branchId      String
-  branch        Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch        Branch         @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   supplierId    String?
-  supplier      Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  supplier      Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   invoiceNo     String?
   status        String         @default("DRAFT")
   paymentStatus String         @default("UNPAID")
@@ -286,19 +288,19 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id           String   @id @default(cuid())
+  id           String   @id @default(cuid()) @map("_id")
   purchaseId   String
-  purchase     Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  purchase     Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   productId    String
-  product      Product  @relation(fields: [productId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id], onUpdate: NoAction)
   qty          Float
   costPaise    Int
 }
 
 model Customer {
-  id              String   @id @default(cuid())
+  id              String   @id @default(cuid()) @map("_id")
   businessId      String
-  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name            String
   phone           String?
   email           String?
@@ -315,16 +317,16 @@ model Customer {
 }
 
 model Order {
-  id               String      @id @default(cuid())
+  id               String      @id @default(cuid()) @map("_id")
   branchId         String
-  branch           Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch           Branch      @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   customerId       String?
-  customer         Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customer         Customer?   @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   cashierId        String?
   tableId          String?
-  table            RestaurantTable? @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  table            RestaurantTable? @relation(fields: [tableId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   bookingId        String?
-  booking          RoomBooking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  booking          RoomBooking? @relation(fields: [bookingId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   invoiceNumber    String?
   status           String      @default("OPEN")
   fulfillment      String      @default("WALK_IN")
@@ -359,13 +361,13 @@ model Order {
 }
 
 model OrderItem {
-  id              String          @id @default(cuid())
+  id              String          @id @default(cuid()) @map("_id")
   orderId         String
-  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order           Order           @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   productId       String
-  product         Product         @relation(fields: [productId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id], onUpdate: NoAction)
   variantId       String?
-  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variant         ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   name            String
   qty             Float
   unitPaise       Int
@@ -377,9 +379,9 @@ model OrderItem {
 }
 
 model Payment {
-  id             String   @id @default(cuid())
+  id             String   @id @default(cuid()) @map("_id")
   orderId        String
-  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   method         String
   amountPaise    Int
   status         String   @default("PENDING")
@@ -391,9 +393,9 @@ model Payment {
 }
 
 model Invoice {
-  id            String   @id @default(cuid())
+  id            String   @id @default(cuid()) @map("_id")
   orderId       String   @unique
-  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   number        String
   issuedAt      DateTime @default(now())
   snapshotJson  String
@@ -401,9 +403,9 @@ model Invoice {
 }
 
 model InvoiceIdempotency {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   nonce      String
   orderId    String
   createdAt  DateTime @default(now())
@@ -412,9 +414,9 @@ model InvoiceIdempotency {
 }
 
 model Refund {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) @map("_id")
   orderId     String
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   amountPaise Int
   reason      String
   status      String   @default("COMPLETED")
@@ -423,11 +425,11 @@ model Refund {
 }
 
 model Expense {
-  id           String   @id @default(cuid())
+  id           String   @id @default(cuid()) @map("_id")
   businessId   String
-  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   branchId     String?
-  branch       Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  branch       Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   category     String
   amountPaise  Int
   note         String?
@@ -437,21 +439,21 @@ model Expense {
 }
 
 model CashRegister {
-  id        String          @id @default(cuid())
+  id        String          @id @default(cuid()) @map("_id")
   branchId  String
-  branch    Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch    Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name      String          @default("Main register")
   shifts    RegisterShift[]
 }
 
 model RegisterShift {
-  id              String       @id @default(cuid())
+  id              String       @id @default(cuid()) @map("_id")
   registerId      String
-  register        CashRegister @relation(fields: [registerId], references: [id], onDelete: Cascade)
+  register        CashRegister @relation(fields: [registerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   openedById      String
-  openedBy        User         @relation("OpenedBy", fields: [openedById], references: [id])
+  openedBy        User         @relation("OpenedBy", fields: [openedById], references: [id], onUpdate: NoAction)
   closedById      String?
-  closedBy        User?        @relation("ClosedBy", fields: [closedById], references: [id])
+  closedBy        User?        @relation("ClosedBy", fields: [closedById], references: [id], onUpdate: NoAction)
   openingPaise    Int
   expectedPaise   Int          @default(0)
   countedPaise    Int?
@@ -465,9 +467,9 @@ model RegisterShift {
 }
 
 model RestaurantTable {
-  id        String  @id @default(cuid())
+  id        String  @id @default(cuid()) @map("_id")
   branchId  String
-  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch    Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name      String
   seats     Int     @default(4)
   status    String  @default("AVAILABLE")
@@ -476,9 +478,9 @@ model RestaurantTable {
 }
 
 model KitchenTicket {
-  id        String   @id @default(cuid())
+  id        String   @id @default(cuid()) @map("_id")
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   station   String   @default("MAIN")
   status    String   @default("RECEIVED")
   itemsJson String
@@ -487,9 +489,9 @@ model KitchenTicket {
 }
 
 model Room {
-  id         String        @id @default(cuid())
+  id         String        @id @default(cuid()) @map("_id")
   branchId   String
-  branch     Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  branch     Branch        @relation(fields: [branchId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   number     String
   category   String        @default("Standard")
   capacity   Int           @default(2)
@@ -499,11 +501,11 @@ model Room {
 }
 
 model RoomBooking {
-  id              String    @id @default(cuid())
+  id              String    @id @default(cuid()) @map("_id")
   roomId          String
-  room            Room      @relation(fields: [roomId], references: [id])
+  room            Room      @relation(fields: [roomId], references: [id], onUpdate: NoAction)
   customerId      String?
-  customer        Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customer        Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   guestName       String
   guestPhone      String?
   checkIn         DateTime
@@ -519,9 +521,9 @@ model RoomBooking {
 }
 
 model Notification {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   title      String
   body       String
   isRead     Boolean  @default(false)
@@ -529,9 +531,9 @@ model Notification {
 }
 
 model PrinterSetting {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   businessId String
-  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name       String
   kind       String   @default("RECEIPT")
   paperWidth Int      @default(80)
@@ -540,11 +542,11 @@ model PrinterSetting {
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
+  id         String   @id @default(cuid()) @map("_id")
   businessId String?
-  business   Business? @relation(fields: [businessId], references: [id], onDelete: SetNull)
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   userId     String?
-  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   action     String
   entity     String
   entityId   String?

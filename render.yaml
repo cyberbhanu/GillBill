@@ -3,7 +3,7 @@ services:
     name: gillbill
     runtime: node
     buildCommand: pnpm install --frozen-lockfile && pnpm build:deploy
-    startCommand: pnpm db:migrate:deploy && pnpm start
+    startCommand: pnpm db:sync:deploy && pnpm start
     healthCheckPath: /login
     envVars:
       - key: NODE_ENV

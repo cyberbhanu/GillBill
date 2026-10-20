@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
-    "build:deploy": "prisma generate --schema=prisma/schema.postgresql.prisma && next build",
+    "predev": "prisma generate --schema=prisma/schema.mongodb.prisma",
+    "build": "prisma generate --schema=prisma/schema.mongodb.prisma && next build",
+    "build:deploy": "prisma generate --schema=prisma/schema.mongodb.prisma && next build",
     "start": "next start",
     "lint": "eslint .",
-    "postinstall": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate:deploy": "prisma migrate deploy --schema=prisma/schema.postgresql.prisma",
+    "db:push": "prisma db push --schema=prisma/schema.mongodb.prisma",
+    "db:sync:deploy": "prisma db push --schema=prisma/schema.mongodb.prisma",
     "db:seed": "tsx prisma/seed.ts",
-    "db:setup": "prisma db push && tsx prisma/seed.ts",
+    "db:setup": "prisma db push --schema=prisma/schema.mongodb.prisma && tsx prisma/seed.ts",
     "test": "vitest run"
   },
   "dependencies": {
