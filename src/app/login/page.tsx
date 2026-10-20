@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { signIn, useSession } from "next-auth/react";
+import { getSession, signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -23,9 +23,18 @@ function LoginForm() {
     event.preventDefault(); setBusy(true); setError("");
     try {
       const result = await signIn("credentials", { identifier: identifier.trim(), password, redirect: false });
-      if (result?.error) { setError("Sign in failed. Use the same email/mobile and password you used when creating the account."); return; }
-      router.replace(params.get("from") || "/dashboard");
-      router.refresh();
+      if (!result?.ok || result.error) { setError("Sign in failed. Use the same email/mobile and password you used when creating the account."); return; }
+
+      const signedInSession = await getSession();
+      if (!signedInSession?.user) {
+        setError("Your sign in was accepted, but GillBill could not start a session. Refresh the page and try again.");
+        return;
+      }
+
+      const requestedPath = params.get("from");
+      const safeRequestedPath = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : null;
+      const destination = signedInSession.user.businessId ? safeRequestedPath || "/dashboard" : "/onboarding";
+      window.location.assign(destination);
     } catch {
       setError("GillBill could not reach the sign-in service. Check your connection and try again.");
     } finally {
