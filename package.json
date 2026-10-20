@@ -13,6 +13,7 @@
     "db:sync:deploy": "prisma db push --schema=prisma/schema.mongodb.prisma",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma db push --schema=prisma/schema.mongodb.prisma && tsx prisma/seed.ts",
+    "admin:hash-password": "node scripts/hash-admin-password.mjs",
     "test": "vitest run"
   },
   "dependencies": {

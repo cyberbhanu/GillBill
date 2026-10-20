@@ -26,6 +26,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = String(credentials?.password ?? "");
         if (!identifier || !password) return null;
 
+        if (credentials?.loginType === "admin") {
+          const adminEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+          const adminPasswordHash = process.env.SUPER_ADMIN_PASSWORD_HASH;
+          if (!adminEmail || !adminPasswordHash || identifier !== adminEmail) return null;
+          const validAdminPassword = await bcrypt.compare(password, adminPasswordHash).catch(() => false);
+          if (!validAdminPassword) return null;
+          return {
+            id: "gillbill-super-admin",
+            name: "GillBill Super Admin",
+            email: adminEmail,
+            businessId: "",
+            branchId: "",
+            role: "SUPER_ADMIN",
+          } as never;
+        }
+
         const user = await prisma.user.findFirst({
           where: {
             isActive: true,
@@ -42,21 +58,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
-        const isSuperAdmin = Boolean(user.email && process.env.SUPER_ADMIN_EMAIL && user.email.toLowerCase() === process.env.SUPER_ADMIN_EMAIL.trim().toLowerCase());
-        const isAdminLogin = credentials?.loginType === "admin";
-        if (isAdminLogin !== isSuperAdmin) return null;
-        if (!user.isApproved && !isSuperAdmin) return null;
-
-        if (isSuperAdmin) {
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email ?? undefined,
-            businessId: "",
-            branchId: "",
-            role: "SUPER_ADMIN",
-          } as never;
-        }
+        if (!user.isApproved) return null;
 
         let membership = user.memberships[0];
         if (credentials?.businessId) {

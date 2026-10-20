@@ -14,5 +14,7 @@ services:
         generateValue: true
       - key: SUPER_ADMIN_EMAIL
         sync: false
+      - key: SUPER_ADMIN_PASSWORD_HASH
+        sync: false
       - key: BLOB_READ_WRITE_TOKEN
         sync: false
