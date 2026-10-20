@@ -22,8 +22,9 @@ export async function POST(request: Request) {
     });
     const deploymentUrl = process.env.APP_URL
       ?? process.env.RENDER_EXTERNAL_URL
+      ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined)
       ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined)
-      ?? "http://localhost:3000";
+      ?? (process.env.NODE_ENV === "production" ? "https://gill-bill.vercel.app" : "http://localhost:3000");
     const resetUrl = `${deploymentUrl.replace(/\/$/, "")}/reset-password?token=${token}`;
     console.info(`[GillBill] Password reset for ${user.email ?? user.phone}: ${resetUrl}`);
     return Response.json({
