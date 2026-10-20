@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #101b2d;
+  --navy-2: #18263d;
+  --ink: #1c2a3f;
+  --muted: #68758a;
+  --line: #e6ebf2;
+  --paper: #f4f6fa;
+  --accent: #2f6fed;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  #receipt-print, #receipt-print * { visibility: visible !important; }
+  #receipt-print { position: absolute; inset: 0 auto auto 0; width: var(--receipt-width, 80mm) !important; max-width: var(--receipt-width, 80mm) !important; margin: 0 !important; padding: 3mm !important; border-radius: 0 !important; box-shadow: none; }
+  .receipt-actions { display: none !important; }
+}
+
+body {
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+h1,
+h2,
+h3,
+.brand-font {
+  font-family: Manrope, "DM Sans", sans-serif;
+}
+
+.receipt-paper {
+  width: var(--receipt-width, 80mm);
+  max-width: calc(100vw - 2rem);
+  margin: 0 auto;
+  color: #111;
+  font: 12px/1.45 ui-monospace, Consolas, monospace;
+}
+
+@media print {
+  @page { size: auto; margin: 0; }
+}

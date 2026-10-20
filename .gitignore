@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+dist
+.env
+.env.local
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev.db-journal
+public/uploads
+coverage
+*.tsbuildinfo
+vitest.config.ts.timestamp*
+.DS_Store

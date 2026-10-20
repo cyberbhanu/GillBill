@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: gillbill
+    runtime: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm build:deploy
+    startCommand: pnpm db:migrate:deploy && pnpm start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: BLOB_READ_WRITE_TOKEN
+        sync: false

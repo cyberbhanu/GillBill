@@ -1,0 +1,2 @@
+import { DataWorkspace } from "@/components/data-workspace";
+export default function CategoriesPage() { return <DataWorkspace title="Categories" eyebrow="Catalog setup" endpoint="/api/categories" resultKey="categories" fields={[{ name: "name", label: "Category name", required: true }, { name: "kind", label: "Category type", type: "select", options: ["PRODUCT", "FOOD"], required: true }]} columns={[{ key: "name", label: "Name" }, { key: "kind", label: "Type" }, { key: "sortOrder", label: "Sort order" }]} />; }

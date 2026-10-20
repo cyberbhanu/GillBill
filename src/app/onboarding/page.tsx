@@ -1,0 +1,17 @@
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function OnboardingPage() {
+  const router = useRouter(); const { update } = useSession(); const [error, setError] = useState(""); const [busy, setBusy] = useState(false);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setBusy(true); setError(""); const f = new FormData(event.currentTarget);
+    const body = { name: f.get("name"), phone: f.get("phone"), address: f.get("address"), currency: f.get("currency"), groceryEnabled: f.get("groceryEnabled") === "on", retailEnabled: f.get("retailEnabled") === "on", restaurantEnabled: f.get("restaurantEnabled") === "on", hotelEnabled: f.get("hotelEnabled") === "on" };
+    const response = await fetch("/api/business", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); const data = await response.json(); setBusy(false);
+    if (!response.ok) { setError(data.error ?? "Unable to save business setup."); return; }
+    await update({ businessId: data.business.id, branchId: data.business.branches?.[0]?.id }); router.replace("/dashboard"); router.refresh();
+  }
+  return <main className="min-h-screen bg-[#f4f6fa] px-4 py-10"><form onSubmit={submit} className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9"><p className="text-xs font-bold uppercase tracking-widest text-emerald-700">Business setup · 1 of 1</p><h1 className="mt-2 font-[Manrope] text-3xl font-bold">Tell us about your business</h1><p className="mt-2 text-sm text-slate-500">We’ll create your first branch and prepare the workspace modules you need.</p><div className="mt-7 grid gap-4 sm:grid-cols-2"><label className="text-xs font-semibold sm:col-span-2">Business name<input required minLength={2} name="name" className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm" /></label><label className="text-xs font-semibold">Business phone<input name="phone" className="mt-2 h-11 w-full rounded-lg border border-slate-200 px-3 text-sm" /></label><label className="text-xs font-semibold">Currency<select name="currency" className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm"><option>INR</option><option>USD</option><option>EUR</option><option>GBP</option></select></label><label className="text-xs font-semibold sm:col-span-2">Business address<textarea name="address" rows={2} className="mt-2 w-full rounded-lg border border-slate-200 p-3 text-sm" /></label></div><div className="mt-6"><p className="text-xs font-semibold">Enable business categories</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{[["groceryEnabled","Grocery & supermarket",true],["retailEnabled","Retail & fashion",true],["restaurantEnabled","Restaurant, cafe & bakery",false],["hotelEnabled","Hotel & guest house",false]].map(([name,label,checked])=><label key={String(name)} className="flex items-center gap-3 rounded-lg border border-slate-200 p-3 text-sm"><input type="checkbox" name={String(name)} defaultChecked={Boolean(checked)} className="accent-emerald-700" />{label}</label>)}</div></div>{error&&<p role="alert" className="mt-4 rounded-lg bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}<button disabled={busy} className="mt-7 h-11 w-full rounded-lg bg-emerald-700 font-semibold text-white disabled:opacity-60">{busy?"Setting up…":"Create business & continue"}</button></form></main>;
+}
