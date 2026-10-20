@@ -17,7 +17,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: request.nextUrl.protocol === "https:",
+  });
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
 
   if (!token && !isPublic && !pathname.startsWith("/api/register") && !pathname.startsWith("/api/password")) {
