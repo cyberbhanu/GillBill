@@ -36,11 +36,11 @@ export async function middleware(request: NextRequest) {
 
   if (token && isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = token.businessId ? "/dashboard" : "/onboarding";
+    url.pathname = token.role === "SUPER_ADMIN" ? "/admin" : token.businessId ? "/dashboard" : "/onboarding";
     return NextResponse.redirect(url);
   }
 
-  if (token && !token.businessId && !ONBOARDING_PATHS.some((p) => pathname.startsWith(p))) {
+  if (token && token.role !== "SUPER_ADMIN" && !token.businessId && !ONBOARDING_PATHS.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone();
     url.pathname = "/onboarding";
     return NextResponse.redirect(url);

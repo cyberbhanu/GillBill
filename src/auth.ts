@@ -41,6 +41,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) return null;
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
+        const isSuperAdmin = Boolean(user.email && process.env.SUPER_ADMIN_EMAIL && user.email.toLowerCase() === process.env.SUPER_ADMIN_EMAIL.trim().toLowerCase());
+        if (!user.isApproved && !isSuperAdmin) return null;
+
+        if (isSuperAdmin) {
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email ?? undefined,
+            businessId: "",
+            branchId: "",
+            role: "SUPER_ADMIN",
+          } as never;
+        }
 
         let membership = user.memberships[0];
         if (credentials?.businessId) {

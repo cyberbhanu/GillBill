@@ -32,6 +32,8 @@ export async function POST(request: Request) {
       email,
       phone,
       passwordHash: await bcrypt.hash(parsed.data.password, 12),
+      isApproved: false,
+      softwareRequests: { create: {} },
     },
   });
   return Response.json({ id: user.id });

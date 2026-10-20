@@ -12,5 +12,7 @@ services:
         sync: false
       - key: AUTH_SECRET
         generateValue: true
+      - key: SUPER_ADMIN_EMAIL
+        sync: false
       - key: BLOB_READ_WRITE_TOKEN
         sync: false

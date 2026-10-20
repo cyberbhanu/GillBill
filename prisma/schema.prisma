@@ -14,6 +14,7 @@ model User {
   name           String
   passwordHash   String
   isActive       Boolean   @default(true)
+  isApproved     Boolean   @default(true)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   memberships    Membership[]
@@ -21,6 +22,49 @@ model User {
   auditLogs      AuditLog[]
   shiftsOpened   RegisterShift[] @relation("OpenedBy")
   shiftsClosed   RegisterShift[] @relation("ClosedBy")
+  softwareRequests SoftwareAccessRequest[]
+  subscriptions  OwnerSubscription[]
+}
+
+model SubscriptionPlan {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  pricePaise       Int      @default(0)
+  durationDays     Int      @default(30)
+  offerLabel       String?
+  offerDiscountBps Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  requests         SoftwareAccessRequest[]
+  subscriptions    OwnerSubscription[]
+}
+
+model SoftwareAccessRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId    String?
+  plan      SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  status    String   @default("PENDING")
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OwnerSubscription {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        SubscriptionPlan @relation(fields: [planId], references: [id])
+  status      String   @default("ACTIVE")
+  amountPaise Int
+  offerLabel  String?
+  startsAt    DateTime @default(now())
+  endsAt      DateTime
+  createdAt   DateTime @default(now())
 }
 
 model PasswordReset {

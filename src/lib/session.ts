@@ -16,6 +16,15 @@ export async function requireUser() {
   return session.user;
 }
 
+export async function requireSuperAdmin() {
+  const session = await auth();
+  const configuredEmail = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
+  if (!configuredEmail || !session?.user?.id || session.user.email?.trim().toLowerCase() !== configuredEmail) {
+    throw new HttpError(403, "Super admin access is not configured for this account.");
+  }
+  return session.user;
+}
+
 export async function requireActor() {
   const session = await auth();
   if (!session?.user?.id) {

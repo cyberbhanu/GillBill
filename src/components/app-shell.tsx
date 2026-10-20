@@ -28,6 +28,7 @@ const links = [
   ["/reports", "Reports", "▥", "OWNER,MANAGER"],
   ["/printers", "Printers & devices", "▤", "OWNER,MANAGER"],
   ["/settings", "Business settings", "⚙", "OWNER"],
+  ["/admin", "Super admin", "♜", "SUPER_ADMIN"],
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -47,6 +48,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const role = user?.role ?? "";
   const nav = links.filter(([href, , , roles]) => {
     if (!roles.split(",").includes(role)) return false;
+    if (role === "SUPER_ADMIN") return href === "/admin";
     if (href === "/rooms" && !membership?.business.hotelEnabled) return false;
     if (href === "/kitchen" && !membership?.business.restaurantEnabled) return false;
     return true;
@@ -60,15 +62,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Image src="/gillbill-logo.png" alt="GillBill Billing Software" width={160} height={66} priority unoptimized className="h-12 w-36 rounded-lg bg-white object-contain p-1" />
         </Link>
         <div className="mb-6 flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
-          {membership?.business.logoUrl ? <Image src={membership.business.logoUrl} alt={`${membership.business.name} logo`} width={36} height={36} unoptimized className="h-9 w-9 rounded-lg bg-white object-contain" /> : <span className="grid h-9 w-9 place-items-center rounded-lg bg-amber-200 font-bold text-amber-900">{membership?.business.name?.slice(0, 1) ?? "S"}</span>}
-          <span className="min-w-0"><b className="block truncate text-xs text-white">{membership?.business.name ?? "Your business"}</b><small className="text-[10px] text-slate-400">{membership?.branch?.name ?? "Main branch"}</small></span>
+          {membership?.business.logoUrl ? <Image src={membership.business.logoUrl} alt={`${membership.business.name} logo`} width={36} height={36} unoptimized className="h-9 w-9 rounded-lg bg-white object-contain" /> : <span className="grid h-9 w-9 place-items-center rounded-lg bg-amber-200 font-bold text-amber-900">{membership?.business.name?.slice(0, 1) ?? (role === "SUPER_ADMIN" ? "G" : "S")}</span>}
+          <span className="min-w-0"><b className="block truncate text-xs text-white">{membership?.business.name ?? (role === "SUPER_ADMIN" ? "GillBill platform" : "Your business")}</b><small className="text-[10px] text-slate-400">{membership?.branch?.name ?? (role === "SUPER_ADMIN" ? "Administration" : "Main branch")}</small></span>
         </div>
         <small className="mb-2 px-3 text-[9px] font-bold tracking-[.16em] text-slate-500">WORKSPACE</small>
         <nav className="flex-1 space-y-1 overflow-y-auto">
           {nav.map(([href, label, icon]) => <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex h-10 items-center gap-3 rounded-lg px-3 text-xs transition ${pathname === href ? "bg-[#293950] font-semibold text-white" : "text-slate-300 hover:bg-white/5 hover:text-white"}`}><span className="w-4 text-center text-base text-emerald-300">{icon}</span>{label}</Link>)}
         </nav>
         <div className="mt-4 border-t border-white/10 pt-4">
-          <div className="mb-3 rounded-xl border border-white/10 bg-[#1b2a40] p-3"><b className="text-xs text-white">Need a hand?</b><p className="mt-1 text-[10px] leading-4 text-slate-400">Set up your catalog and start a sale from POS Billing.</p></div>
+          {role !== "SUPER_ADMIN" && <div className="mb-3 rounded-xl border border-white/10 bg-[#1b2a40] p-3"><b className="text-xs text-white">Need a hand?</b><p className="mt-1 text-[10px] leading-4 text-slate-400">Set up your catalog and start a sale from POS Billing.</p></div>}
           <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center rounded-full bg-orange-100 text-xs font-bold text-orange-900">{user?.name?.slice(0, 1) ?? "U"}</span><span className="min-w-0 flex-1"><b className="block truncate text-[11px] text-white">{user?.name ?? "Signed in"}</b><small className="text-[10px] text-slate-400">{role.toLowerCase()}</small></span><button onClick={() => signOut({ callbackUrl: "/login" })} className="rounded px-2 py-1 text-xs text-slate-300 hover:bg-white/10">Log out</button></div>
         </div>
       </aside>
