@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PUBLIC_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
+const PUBLIC_PATHS = ["/login", "/admin/login", "/register", "/forgot-password", "/reset-password"];
 const ONBOARDING_PATHS = ["/onboarding", "/api/business"];
 
 export async function middleware(request: NextRequest) {

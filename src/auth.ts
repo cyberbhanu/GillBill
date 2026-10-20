@@ -17,6 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
         businessId: { label: "Business", type: "text" },
         branchId: { label: "Branch", type: "text" },
+        loginType: { label: "Login type", type: "text" },
       },
       async authorize(credentials) {
         const identifier = String(credentials?.identifier ?? "")
@@ -42,6 +43,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
         const isSuperAdmin = Boolean(user.email && process.env.SUPER_ADMIN_EMAIL && user.email.toLowerCase() === process.env.SUPER_ADMIN_EMAIL.trim().toLowerCase());
+        const isAdminLogin = credentials?.loginType === "admin";
+        if (isAdminLogin !== isSuperAdmin) return null;
         if (!user.isApproved && !isSuperAdmin) return null;
 
         if (isSuperAdmin) {
