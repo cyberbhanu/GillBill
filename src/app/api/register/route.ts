@@ -15,8 +15,8 @@ export async function POST(request: Request) {
   if (!parsed.success) {
     return Response.json({ error: "Enter a name, email or mobile number, and a password of at least 8 characters." }, { status: 400 });
   }
-  const email = parsed.data.email?.toLowerCase() || null;
-  const phone = parsed.data.phone || null;
+  const email = parsed.data.email?.trim().toLowerCase() || null;
+  const phone = parsed.data.phone?.trim() || null;
   if (!email && !phone) {
     return Response.json({ error: "Provide an email address or mobile number." }, { status: 400 });
   }
