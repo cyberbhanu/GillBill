@@ -32,6 +32,13 @@ backend for Vercel. Both instances can share MongoDB Atlas and Vercel Blob.
 4. Deploy. The configured build command synchronizes the MongoDB collections
    and indexes before each build.
 
+If Vercel signup works but login returns to the login page, inspect **Settings
+→ Environment Variables**. Remove a `NEXTAUTH_URL` value of
+`http://localhost:3000`, or change it to `https://gill-bill.vercel.app`, then
+redeploy Production. The app uses Auth.js host detection when this variable is
+unset. Also confirm `AUTH_SECRET` is set for Production and redeploy after
+changing it.
+
 ## Render
 
 1. In Render, create a Blueprint from the GitHub repository and select the
