@@ -39,7 +39,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           supplierId: body.supplierId || null,
           purchasePaise: body.purchasePrice != null ? rupeesToPaise(body.purchasePrice) : undefined,
           sellingPaise: body.sellingPrice != null ? rupeesToPaise(body.sellingPrice) : undefined,
-          discountPaise: body.discountPrice != null ? rupeesToPaise(body.discountPrice) : undefined,
+          discountPaise: body.discountPrice != null ? Math.min(rupeesToPaise(body.discountPrice), rupeesToPaise(body.sellingPrice ?? 0)) : undefined,
           trackStock: body.trackStock,
           minStock: body.minStock != null ? Number(body.minStock) : undefined,
           isActive: body.isActive,

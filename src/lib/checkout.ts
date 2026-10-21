@@ -62,6 +62,7 @@ export async function completeCheckout(params: {
       if (item.variantId && !variant) throw new Error(`Variant missing for ${product.name}.`);
 
       const unitPaise = variant?.sellingPaise ?? product.sellingPaise;
+      const discountPaise = Math.min(product.discountPaise ?? 0, unitPaise) * item.qty;
       const tax: TaxProfile = product.taxRate
         ? {
             cgstBps: product.taxRate.cgstBps,
@@ -99,7 +100,7 @@ export async function completeCheckout(params: {
         variant,
         qty: item.qty,
         unitPaise,
-        discountPaise: item.discountPaise ?? 0,
+        discountPaise,
         notes: item.notes,
         tax,
       });

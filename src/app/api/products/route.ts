@@ -66,7 +66,7 @@ export async function POST(request: Request) {
           unit: body.unit || "piece",
           purchasePaise: rupeesToPaise(body.purchasePrice ?? 0),
           sellingPaise: rupeesToPaise(body.sellingPrice),
-          discountPaise: body.discountPrice != null ? rupeesToPaise(body.discountPrice) : null,
+          discountPaise: body.discountPrice != null ? Math.min(rupeesToPaise(body.discountPrice), rupeesToPaise(body.sellingPrice)) : null,
           trackStock: body.trackStock !== false,
           minStock: Number(body.minStock ?? 5),
           isActive: body.isActive !== false,

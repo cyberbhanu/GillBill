@@ -17,9 +17,9 @@ body {
 
 @media print {
   body * { visibility: hidden !important; }
-  #receipt-print, #receipt-print * { visibility: visible !important; }
-  #receipt-print { position: absolute; inset: 0 auto auto 0; width: var(--receipt-width, 80mm) !important; max-width: var(--receipt-width, 80mm) !important; margin: 0 !important; padding: 3mm !important; border-radius: 0 !important; box-shadow: none; }
-  .receipt-actions { display: none !important; }
+  #receipt-print, #receipt-print *, #kot-print, #kot-print * { visibility: visible !important; }
+  #receipt-print, #kot-print { position: absolute; inset: 0 auto auto 0; width: var(--receipt-width, 80mm) !important; max-width: var(--receipt-width, 80mm) !important; margin: 0 !important; padding: 3mm !important; border-radius: 0 !important; box-shadow: none; }
+  #kot-print button, .receipt-actions { display: none !important; }
 }
 
 body {
